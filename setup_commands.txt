@@ -1,0 +1,5 @@
+Обновление настроек
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+Запуск
+.\setup_and_run.ps1

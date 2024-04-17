@@ -1,0 +1,11 @@
+Django
+asgiref
+dj-rest-auth
+djangorestframework
+djangorestframework-simplejwt
+Pillow
+PyJWT
+pytz
+sqlparse
+typing_extensions
+tzdata
