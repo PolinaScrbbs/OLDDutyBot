@@ -31,10 +31,10 @@ class AdminsView(ListCreateAPIView):
 #Авторизация и создание токена
 class LoginView(APIView):
     def post(self, request):
-        email = request.data.get('email')
+        login = request.data.get('login')
         password = request.data.get('password')
 
-        admin = authenticate(request, email=email, password=password)
+        admin = authenticate(request, full_name=login, password=password)
 
         if admin:
             token, _ = Token.objects.get_or_create(user=admin)
