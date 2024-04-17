@@ -4,9 +4,9 @@ from django.core.exceptions import ValidationError
 
 class People(models.Model):
     full_name = models.CharField(max_length=100, unique=True, verbose_name='ФИО')
-    group = models.CharField(max_length=10, verbose_name='Группа')
+    group = models.CharField(max_length=10, blank=True, verbose_name='Группа')
 
-    #Количество дежурств человека
+    # Количество дежурств человека
     @property
     def duty_count(self):
         return Duty.objects.filter(people=self).count()
