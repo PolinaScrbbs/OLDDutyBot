@@ -16,6 +16,7 @@ class PeopleSerializer(serializers.ModelSerializer):
         return value
   
 class DutySerializer(serializers.ModelSerializer):
+    people = PeopleSerializer()
     class Meta:
         model = Duty
         fields = '__all__'

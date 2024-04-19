@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.exceptions import NotFound
+from rest_framework import status
 
 from .models import People, Duty
 from .serializers import PeopleSerializer, DutySerializer
@@ -24,9 +24,22 @@ class DutyListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        duties = Duty.objects.all()
+        user = request.user
+        duties = Duty.objects.filter(people__group=user.group).order_by('people__full_name', 'date')
         serializer = DutySerializer(duties, many=True)
         return Response(serializer.data)
+    
+    def post(self, request):
+        duties_data = request.data.get("duties", [])
+        for duty_data in duties_data:
+            try:
+                people = People.objects.get(full_name=duty_data['people'])
+
+                date = duty_data['date']
+                Duty.objects.create(people=people, date=date)
+            except KeyError:
+                return Response({"error": "Invalid duty data"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "Duties created successfully"}, status=status.HTTP_201_CREATED)
 
 
 # Получение двух людей с наименьшей датой последнего дежурства из заданного списка
