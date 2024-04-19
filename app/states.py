@@ -4,5 +4,5 @@ class Auth(StatesGroup):
     login = State()
     password = State()
 
-class GetDutiesCount(StatesGroup):
-    list = State()
+class GetAttendants(StatesGroup):
+    wait = State()

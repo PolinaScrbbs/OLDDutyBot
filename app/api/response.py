@@ -1,41 +1,114 @@
-import httpx
+import requests
 from urllib.parse import urljoin
+from datetime import datetime
 from config import API_URL
 
-async def authorization(login, password):
+def authorization(login, password):
     base_url = API_URL
     endpoint = '/auth/login/'
     url = urljoin(base_url, endpoint)
     headers = {'Content-Type': 'application/json'}
     data = {'login': login, 'password': password}
 
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.post(url, json=data, headers=headers)
-            response.raise_for_status()  # Проверка на ошибку в ответе
+    try:
+        response = requests.post(url, json=data, headers=headers)
+        response.raise_for_status()  # Проверка на ошибку в ответе
 
-            if response.status_code == 200:
-                token = response.json().get('token')
-                return token, None
-            else:
-                return None, "Ошибка аутентификации"
-        except httpx.RequestError as e:
-            print(f"У пользователя {login} Произошла ошибка: {e}")
+        if response.status_code == 200:
+            token = response.json().get('token')
+            return token, None
+        else:
+            return None, "Ошибка аутентификации"
+    except requests.RequestException as e:
+        print(f"У пользователя {login} Произошла ошибка: {e}")
 
-async def get_duties_count(token):
+
+def get_people(token):
     base_url = API_URL
     endpoint = '/api/people/'
-    url = urljoin(base_url, f"{endpoint}?token={token}")
+    url = urljoin(base_url, endpoint)
+    headers = {'Authorization': f'Token {token}', 'Content-Type': 'application/json'}
 
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.get(url)
-            response.raise_for_status()  # Проверка на ошибку в ответе
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()  # Проверка на ошибку в ответе
         
-            if response.status_code == 200:
-                duties_count = response.json()
-                return duties_count, None
-            else:
-                return None, "Ошибка"
-        except httpx.RequestError as e:
-            print(f"Произошла ошибка: {e}")
+        if response.status_code == 200:
+            duties_count = response.json()
+            return duties_count, None
+        else:
+            return None, "Ошибка"
+    except requests.RequestException as e:
+        print(f"Произошла ошибка: {e}")
+
+
+def get_duties(token):
+    base_url = API_URL
+    endpoint = '/api/duties/'
+    url = urljoin(base_url, endpoint)
+    headers = {'Authorization': f'Token {token}', 'Content-Type': 'application/json'}
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()  # Проверка на ошибку в ответе
+        
+        if response.status_code == 200:
+            duties_count = response.json()
+            return duties_count, None
+        else:
+            return None, "Ошибка"
+    except requests.RequestException as e:
+        print(f"Произошла ошибка: {e}")
+
+
+def get_attendants(token, pass_people):
+    base_url = API_URL
+    endpoint = '/api/attendant/'
+    url = urljoin(base_url, endpoint)
+    headers = {'Authorization': f'Token {token}', 'Content-Type': 'application/json'}
+    data = {'pass_people': pass_people}
+
+    try:
+        response = requests.get(url, json=data, headers=headers)
+        response.raise_for_status()  # Проверка на ошибку в ответе
+        
+        if response.status_code == 200:
+            attendants = response.json()
+            return attendants, None
+        else:
+            return None, "Ошибка"
+    except requests.RequestException as e:
+        print(f"Произошла ошибка: {e}")
+
+
+def post_duties(token, attendants):
+    base_url = API_URL
+    endpoint = '/api/duties/'
+    url = urljoin(base_url, endpoint)
+    headers = {'Authorization': f'Token {token}', 'Content-Type': 'application/json'}
+    today = str(datetime.today().date())
+    body = {
+        'duties': [
+            {
+                "people": attendants[0]['full_name'],
+                "date": today
+            },
+            {
+                "people": attendants[1]['full_name'],
+                "date": today
+            }
+        ]
+    }
+
+    try:
+        response = requests.post(url, json=body, headers=headers)
+        response.raise_for_status()  # Проверка на ошибку в ответе
+        
+        if response.status_code == 200:
+            attendants = response.json()
+            return attendants, None
+        else:
+            return None, "Ошибка"
+    except requests.RequestException as e:
+        print(f"Произошла ошибка: {e}") 
+   

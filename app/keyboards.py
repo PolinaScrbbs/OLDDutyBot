@@ -18,8 +18,15 @@ main = ReplyKeyboardMarkup(keyboard=[
                         resize_keyboard=True,
                         input_field_placeholder='Выберите пункт меню')
 
-cancel = InlineKeyboardMarkup(inline_keyboard=[
+remap = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='🔄', callback_data='remapFirst'), InlineKeyboardButton(text='🔄', callback_data='remapSecond')],
+    [InlineKeyboardButton(text='✅Назначить', callback_data='assign')], 
     [InlineKeyboardButton(text='❌Отмена', callback_data='cancel')]
+], 
+                        row_width=1)
+
+cancel = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='❌', callback_data='cancel')]
 ])
 
 settings = InlineKeyboardMarkup(inline_keyboard=[
