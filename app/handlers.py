@@ -1,6 +1,7 @@
 from aiogram import F, Router
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery
+from aiogram.utils import markdown
 from aiogram.fsm.context import FSMContext
 
 import app.keyboards as kb
@@ -13,8 +14,13 @@ router = Router()
 #Старт
 @router.message(CommandStart())
 async def cmd_start(message:Message):
+    token = await db_res.get_token(message.from_user.id)
+    if token:
+        reply_markup = kb.main
+    else:
+        reply_markup = kb.start
     await message.answer(f'Привет {message.from_user.first_name} {message.from_user.last_name}\nВыбери пункт из меню💤💤💤',
-                        reply_markup=kb.start)
+                        reply_markup=reply_markup)
 
 
 #Авторизация============================================================================================================
@@ -35,7 +41,7 @@ async def get_password(message: Message, state: FSMContext):
 async def reg(message: Message, state: FSMContext):
     await state.update_data(password=message.text) #Сохранили пароль
     data = await state.get_data() #Получили информацию
-    token, error = api_res.authorization(data['login'], data['password'])
+    token, error = await api_res.authorization(data['login'], data['password'])
     if error:
         await message.answer(error)
         await message.answer('Введите логин', reply_markup=kb.cancel)
@@ -44,6 +50,27 @@ async def reg(message: Message, state: FSMContext):
         await db_res.save_token(message.from_user.id, token)
         await message.answer(f'{message.from_user.first_name}, авторизация завершена')
         await state.clear() #Очищение состояний
+
+
+#Получение списка дежурств===========================================================================================
+
+
+@router.message(lambda message: message.text == "Получить количество дежурств")
+async def get_duetes_count(message: Message, state: FSMContext):
+    token = await db_res.get_token(message.from_user.id)
+    if token:
+        duties_count, error = await api_res.get_duties_count(token)
+        if error:
+            await message.answer(error, reply_markup=kb.main)
+            await state.clear() #Очищение состояний
+        else:
+            msg = "*Количество дежурств:*\n\n"
+            for duty in duties_count:
+                msg += f"👨‍🎓 *{duty['full_name']}* Количество дежурств: *{duty['duty_count']}*\n"
+            await message.answer(msg, parse_mode="Markdown")
+    else:
+        await state.clear() #Очищение состояний
+        await message.answer('Необходимо авторизоваться', reply_markup=kb.start)
 
 @router.callback_query(F.data == 'cancel')
 async def catalog(callback:CallbackQuery, state: FSMContext):
