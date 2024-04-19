@@ -9,7 +9,7 @@ def get_group_list():
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         options = soup.find_all('option', value=True)
-        group_names = [option['value'] for option in options if len(option['value']) < 8]
+        group_names = [option['value'].lower() for option in options if len(option['value']) < 8]
         return group_names
     except requests.RequestException as e:
         raise ValidationError(f'Ошибка при получении данных: {e}')

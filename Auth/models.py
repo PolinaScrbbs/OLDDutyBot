@@ -33,5 +33,7 @@ class Admin(AbstractBaseUser, PermissionsMixin):
     def clean(self):
         super().clean()
         groups_list = get_group_list()
-        if self.group not in groups_list:
+        if self.group.lower() not in groups_list:
             raise ValidationError({'group': f'Недопустимое значение группы. Доступные группы: {", ".join(groups_list)}'})
+        else:
+            self.group = self.group.upper()
