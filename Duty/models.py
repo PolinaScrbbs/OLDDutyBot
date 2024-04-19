@@ -1,6 +1,9 @@
 from django.db import models
-from Auth.parser import get_group_list
+from django.utils import timezone
 from django.core.exceptions import ValidationError
+
+from Auth.parser import get_group_list
+
 
 class People(models.Model):
     full_name = models.CharField(max_length=100, unique=True, verbose_name='ФИО')
@@ -8,8 +11,15 @@ class People(models.Model):
 
     # Количество дежурств человека
     @property
-    def duty_count(self):
-        return Duty.objects.filter(people=self).count()
+    def duties_count(self):
+        duties_count = Duty.objects.filter(people=self).count()
+        return duties_count if duties_count else 0
+    
+    @property
+    def last_duty_date(self):
+        today = timezone.now().date()
+        last_duty = Duty.objects.filter(people=self, date__lte=today).order_by('-date').first()
+        return last_duty.date if last_duty else None
     
     def clean(self):
         super().clean()

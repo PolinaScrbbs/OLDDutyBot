@@ -1,10 +1,9 @@
 from django.urls import path
-from .views import PeopleListView, PeopleDetailView, DutyListView, DutyDetailView
+from .views import PeopleListView, AttendantView, DutyListView
 
 urlpatterns = [
-    path('people/', PeopleListView.as_view({'get': 'list', 'post': 'create'}), name='people-list'),
-    path('people/<int:pk>/', PeopleDetailView.as_view(), name='people-detail'),
-    path('duties/', DutyListView.as_view({'get': 'list', 'post': 'create'}), name='duty-list'),
-    path('duties/<int:pk>/', DutyDetailView.as_view(), name='duty-detail'),
+    path('people/', PeopleListView.as_view(), name='people-list'),
+    path('attendant/', AttendantView.as_view(), name='get-attendant'),
+    path('duties/', DutyListView.as_view(), name='duty-detail'),
 ]
 
