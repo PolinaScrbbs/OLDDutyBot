@@ -5,13 +5,29 @@
     "fields": {
         "last_login": null,
         "is_superuser": true,
-        "password": "pbkdf2_sha256$600000$VqnIb1Hy89RK8DiUoscJS0$6q8pZTh2P8V3NgTbecVIh7reVG44n0byhw/xUDI3k0U=",
+        "password": "1",
         "full_name": "Ивановский Тимофей Владиславович",
         "group": "ИС-33К",
         "is_active": true,
-        "is_staff": true,
+        "is_staff": false,
         "groups": [],
         "user_permissions": []
     }
+    },
+
+    {
+        "model": "Auth.admin",
+        "pk": 1,
+        "fields": {
+            "last_login": null,
+            "is_superuser": false,
+            "password": "pbkdf2_sha256$600000$VqnIb1Hy89RK8DiUoscJS0$6q8pZTh2P8V3NgTbecVIh7reVG44n0byhw/xUDI3k0U=",
+            "full_name": "Клочков Данила Александрович",
+            "group": "ИС-33К",
+            "is_active": true,
+            "is_staff": true,
+            "groups": [],
+            "user_permissions": []
+        }
     }
 ]

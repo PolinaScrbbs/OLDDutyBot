@@ -1,0 +1,146 @@
+[
+  {
+    "model": "Duty.people",
+    "pk": 1,
+    "fields": {
+      "full_name": "Азаров Артём Эдуардович",
+      "group": "ИС-33К"
+    }
+  },
+  {
+    "model": "Duty.people",
+    "pk": 2,
+    "fields": {
+      "full_name": "Антипова Ольга Андреевна",
+      "group": "ИС-33К"
+    }
+  },
+  {
+    "model": "Duty.people",
+    "pk": 3,
+    "fields": {
+      "full_name": "Балягутдинов Даниил Зуфирович",
+      "group": "ИС-33К"
+    }
+  },
+  {
+    "model": "Duty.people",
+    "pk": 4,
+    "fields": {
+      "full_name": "Вялых Александр Сепгеевич",
+      "group": "ИС-33К"
+    }
+  },
+  {
+    "model": "Duty.people",
+    "pk": 5,
+    "fields": {
+      "full_name": "Гайдары Владислав Васильевич",
+      "group": "ИС-33К"
+    }
+  },
+  {
+    "model": "Duty.people",
+    "pk": 6,
+    "fields": {
+      "full_name": "Горбулин Павел Владимирович",
+      "group": "ИС-33К"
+    }
+  },
+  {
+    "model": "Duty.people",
+    "pk": 7,
+    "fields": {
+      "full_name": "Гринь Кирилл  Андреевич",
+      "group": "ИС-33К"
+    }
+  },
+  {
+    "model": "Duty.people",
+    "pk": 8,
+    "fields": {
+      "full_name": "Денисов Иван Алексеевич",
+      "group": "ИС-33К"
+    }
+  },
+  {
+    "model": "Duty.people",
+    "pk": 9,
+    "fields": {
+      "full_name": "Ерёмин Антон Дмитриевич",
+      "group": "ИС-33К"
+    }
+  },
+  {
+    "model": "Duty.people",
+    "pk": 10,
+    "fields": {
+      "full_name": "Заец Ольга Сергеевна",
+      "group": "ИС-33К"
+    }
+  },
+  {
+    "model": "Duty.people",
+    "pk": 11,
+    "fields": {
+      "full_name": "Захаров Ярослав Александрович",
+      "group": "ИС-33К"
+    }
+  },
+  {
+    "model": "Duty.people",
+    "pk": 12,
+    "fields": {
+      "full_name": "Зубарев Дмитрий Александрович",
+      "group": "ИС-33К"
+    }
+  },
+  {
+    "model": "Duty.people",
+    "pk": 13,
+    "fields": {
+      "full_name": "Иванченков Даниил Алексеевич",
+      "group": "ИС-33К"
+    }
+  },
+  {
+    "model": "Duty.people",
+    "pk": 14,
+    "fields": {
+      "full_name": "Клочков Данила Александрович",
+      "group": "ИС-33К"
+    }
+  },
+  {
+    "model": "Duty.people",
+    "pk": 15,
+    "fields": {
+      "full_name": "Колкнева Ангелина Игоревна",
+      "group": "ИС-33К"
+    }
+  },
+  {
+    "model": "Duty.people",
+    "pk": 16,
+    "fields": {
+      "full_name": "Куликов Георгий Борисович",
+      "group": "ИС-33К"
+    }
+  },
+  {
+    "model": "Duty.people",
+    "pk": 17,
+    "fields": {
+      "full_name": "Левков Станислав Алексеевич",
+      "group": "ИС-33К"
+    }
+  },
+  {
+    "model": "Duty.people",
+    "pk": 18,
+    "fields": {
+      "full_name": "Холодов Александр Сергеевич",
+      "group": "ИС-33К"
+    }
+  }
+]

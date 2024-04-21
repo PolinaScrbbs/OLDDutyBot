@@ -4,18 +4,28 @@ from django.core.exceptions import ValidationError
 from .parser import get_group_list
 
 class AdminManager(BaseUserManager):
-    def create_user(self, email, password=None, **extra_fields):
-        if not email:
-            raise ValueError('Email is required')
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+    def create_user(self, full_name, password=None, **extra_fields):
+        if not full_name:
+            raise ValueError('Full_name is required')
+        user = self.model(full_name=full_name, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
+    
+    def create_superuser(self, full_name, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(full_name, password, **extra_fields)
 
 class Admin(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField(max_length=70, unique=True, verbose_name='ФИО')
-    group = models.CharField(max_length=10, verbose_name='Группа')
+    group = models.CharField(max_length=10, default='ИС-33К', verbose_name='Группа')
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
