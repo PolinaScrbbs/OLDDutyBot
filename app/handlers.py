@@ -19,7 +19,7 @@ async def cmd_start(message:Message):
         reply_markup = kb.main
     else:
         reply_markup = kb.start
-    await message.answer(f'Привет {message.from_user.first_name} {message.from_user.last_name}\nВыбери пункт из меню💤💤💤',
+    await message.answer(f'Привет👋\nВыбери пункт из меню🔍',
                         reply_markup=reply_markup)
 
 
@@ -41,15 +41,20 @@ async def get_password(message: Message, state: FSMContext):
 async def reg(message: Message, state: FSMContext):
     await state.update_data(password=message.text) #Сохранили пароль
     data = await state.get_data() #Получили информацию
-    token, error = api_res.authorization(data['login'], data['password'])
-    if error:
-        await message.answer(error)
-        await message.answer('Введите логин', reply_markup=kb.cancel)
-        await state.set_state(st.Auth.login) #Поменяли состояние на ожидание логина
-    else:
-        await db_res.save_token(message.from_user.id, token)
-        await message.answer(f'{message.from_user.first_name}, авторизация завершена')
+    print(data['login'], data['password'])
+    try:
+        token, error = api_res.authorization(data['login'], data['password'])
+        if error:
+            await message.answer('❌Ошибка авторизации')
+            await state.clear() #Очищение состояний
+        else:
+            await db_res.save_token(message.from_user.id, token)
+            await message.answer(f'{message.from_user.first_name}, авторизация завершена✌️', reply_markup=kb.main)
+            await state.clear() #Очищение состояний
+    except:
+        await message.answer('❌Ошибка авторизации')
         await state.clear() #Очищение состояний
+        
 
 
 #Получение людей===========================================================================================
@@ -79,14 +84,16 @@ async def get_duties(message: Message):
     token = await db_res.get_token(message.from_user.id)
     if token:
         duties, error = api_res.get_duties(token)
+        print(duties)
         if error:
             await message.answer(error, reply_markup=kb.main)
         else:
             msg = "🧹*Дежурства:*\n\n"
-            if len(duties) > 1:
+            if duties != []:
                 for duty in duties:
                     msg += f"👨‍🎓 *{duty['people']['full_name']}* дежурил ⏰*{duty['date']}*\n"
-            msg = "*🔎Дежурств не обнаружено*"
+            else:
+                msg = "*🔎Дежурств не обнаружено*"
             await message.answer(msg, parse_mode="Markdown")
     else:
         await message.answer('Необходимо авторизоваться', reply_markup=kb.start)
@@ -174,25 +181,8 @@ async def catalog(callback:CallbackQuery, state: FSMContext):
 
 @router.message(Command('help'))
 async def get_help(message:Message):
-    await message.answer('Это команда /help')
+    await message.answer('В разработке')
 
-
-@router.message(F.text == 'Как дела?')
-async def how_are_you(message:Message):
-    await message.answer('Хорошо')
-
-
-@router.message(F.photo)
-async def get_photo_id(message:Message):
-    await message.answer(f'ID фото: {message.photo[-1].file_id}')
-
-
-@router.message(Command('get_photo'))
-async def get_photo(message:Message):
-    await message.answer_photo(photo='AgACAgIAAxkBAAPAZiEzU-ZmNo4lPSA3lOUxV3IQsGkAAtXXMRsUXwhJWuZtoLaC9hcBAAMCAAN5AAM0BA',
-                        caption='Ваше фото')
-    
-@router.callback_query(F.data == 'catalog')
-async def catalog(callback:CallbackQuery):
-    await callback.answer('Вы выбрали каталог', show_alert=True) #show_alert=True Показывает целое сообщение
-    await callback.message.edit_text('Каталог', reply_markup=await kb.inline_links()) #Заменяем старые кнопки на новые
+@router.message(Command('links'))
+async def get_help(message:Message):
+    await message.answer("👑Polina's Scrbbs links", reply_markup=kb.links)

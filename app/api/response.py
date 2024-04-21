@@ -53,8 +53,8 @@ def get_duties(token):
         response.raise_for_status()  # Проверка на ошибку в ответе
         
         if response.status_code == 200:
-            duties_count = response.json()
-            return duties_count, None
+            duties = response.json()
+            return duties, None
         else:
             return None, "Ошибка"
     except requests.RequestException as e:

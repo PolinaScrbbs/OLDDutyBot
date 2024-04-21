@@ -29,15 +29,16 @@ cancel = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='❌', callback_data='cancel')]
 ])
 
+links = InlineKeyboardMarkup(inline_keyboard=[
+    [   
+        InlineKeyboardButton(text='📝Документация', url='https://github.com/PolinaScrbbs/DutyBot/blob/main/README.md'),
+        InlineKeyboardButton(text='🖥️GitHub', url='https://github.com/PolinaScrbbs'),
+        InlineKeyboardButton(text='💬Telegram', url='https://t.me/PolinaScrbbs')
+    ]
+]
+                             )
+
 settings = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Создатель', url='https://github.com/PolinaScrbbs')]
 ])
-
-links = ['Первая', 'Вторая', 'Третья']
-
-async def inline_links():
-    keyboard = InlineKeyboardBuilder()
-    for link in links:
-        keyboard.add(InlineKeyboardButton(text=link, url='https://github.com/PolinaScrbbs'))
-    return keyboard.adjust(2).as_markup() #adjust(2) По 2 кнопки в ряду
     
