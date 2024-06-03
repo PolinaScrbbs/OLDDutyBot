@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import People, Duty
-from Auth.parser import get_group_list
+from authorization.parser import get_group_list
 
 class PeopleSerializer(serializers.ModelSerializer):
     duties_count = serializers.IntegerField(default=0)

@@ -2,14 +2,13 @@ from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 
-from Auth.parser import get_group_list
+from authorization.parser import get_group_list
 
 
 class People(models.Model):
     full_name = models.CharField(max_length=100, unique=True, verbose_name='ФИО')
     group = models.CharField(max_length=10, blank=True, verbose_name='Группа')
 
-    # Количество дежурств человека
     @property
     def duties_count(self):
         duties_count = Duty.objects.filter(people=self).count()
