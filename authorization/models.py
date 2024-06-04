@@ -63,6 +63,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
+    
+    def get_absolute_url(self):
+        return reverse("User_deatil", kwargs={"pk": self.pk})
 
     def clean(self):
         super().clean()

@@ -59,7 +59,7 @@ class UsersView(CreateAPIView):
             if user.role.id == 1:
                 try:
                     role = Role.objects.get(id=role_id)
-                    users = User.objects.filter(role=role)
+                    users = User.objects.filter(role=role).order_by('full_name')
 
                     if users.exists():
                         serializer = self.get_serializer(users, many=True)
@@ -84,7 +84,7 @@ class UsersView(CreateAPIView):
                 if user.group != group and user.role.id != 1:
                     return Response({"Ошибка": "Отказано в доступе к другой группе"}, status=status.HTTP_403_FORBIDDEN)
                 
-                users = User.objects.filter(group=group)
+                users = User.objects.filter(group=group).order_by('full_name')
                 if users.exists():
                     serializer = self.get_serializer(users, many=True)
                     return Response({f"Пользователи с группой {group}": serializer.data})
@@ -94,7 +94,7 @@ class UsersView(CreateAPIView):
                 return Response({"Ошибка": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
 
         if user.role.id == 1:
-            users = User.objects.all()
+            users = User.objects.all().order_by('full_name')
             if users.exists():
                 serializer = self.get_serializer(users, many=True)
                 return Response({"Пользователи": serializer.data})

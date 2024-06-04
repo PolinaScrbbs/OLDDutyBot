@@ -1,23 +1,22 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import TokenAuthentication
 from rest_framework import status
 
-from .models import People, Duty
-from .serializers import PeopleSerializer, DutySerializer
+from authorization.models import User, TokenAuthentication
+from .models import Duty
+from .serializers import AttendantSerializer, DutyDetailSerializer
+from datetime import datetime
 
-from datetime import datetime, date
+# class PeopleListView(APIView):
+#     authentication_classes = [TokenAuthentication]
+#     permission_classes = [IsAuthenticated]
 
-class PeopleListView(APIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-        people = People.objects.filter(group=user.group).order_by('full_name')
-        serializer = PeopleSerializer(people, many=True)
-        return Response(serializer.data)
+#     def get(self, request):
+#         user = request.user
+#         people = People.objects.filter(group=user.group).order_by('full_name')
+#         serializer = PeopleSerializer(people, many=True)
+#         return Response(serializer.data)
 
 class DutyListView(APIView):
     authentication_classes = [TokenAuthentication]
@@ -25,21 +24,32 @@ class DutyListView(APIView):
 
     def get(self, request):
         user = request.user
-        duties = Duty.objects.filter(people__group=user.group).order_by('people__full_name', 'date')
-        serializer = DutySerializer(duties, many=True)
-        return Response(serializer.data)
+        group = user.group
+
+        duties = Duty.objects.filter(duty__group=group).order_by('duty__full_name', 'date')
+        if duties.__len__() == 0:
+            return Response({"message": f"Список дежурств группы {group} пуст"})
+        
+        serializer = DutyDetailSerializer(duties, many=True)
+        return Response({f"Дежурства группы {group}": serializer.data})
     
     def post(self, request):
-        duties_data = request.data.get("duties", [])
-        for duty_data in duties_data:
-            try:
-                people = People.objects.get(full_name=duty_data['people'])
+        user = request.user
+        if user.role.id not in [1,2]:
+            return Response({"Ошибка": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
+        duties = request.data.get("duties")
+        try:
+            for duty in duties:
+                duty = User.objects.get(full_name=duty)
 
-                date = duty_data['date']
-                Duty.objects.create(people=people, date=date)
-            except KeyError:
-                return Response({"error": "Invalid duty data"}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({"message": "Duties created successfully"}, status=status.HTTP_201_CREATED)
+                if duty.group != user.group:
+                    return Response({"error": f"Студент {duty.full_name} из группы {duty.group}, а из вашей {user.group}"}, status=status.HTTP_400_BAD_REQUEST)
+                
+                Duty.objects.create(duty=duty)
+
+            return Response({"message": "Duties created successfully"}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({f"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Получение двух людей с наименьшей датой последнего дежурства из заданного списка
@@ -48,8 +58,8 @@ def get_min_date_people(people_list):
     null_date = datetime.strptime('2023-12-04', '%Y-%m-%d').date()
 
     for person in people_list:
-        if person.last_duty_date is not None:
-            last_duty_date = person.last_duty_date
+        if person['last_duty_date'] is not None:
+            last_duty_date = person['last_duty_date']
         else:
             last_duty_date = null_date
 
@@ -70,33 +80,38 @@ class AttendantView(APIView):
 
     def get(self, request):
         user = request.user
+        if user.role.id not in [1,2]:
+            return Response({"Ошибка": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
 
-        pass_people = request.data.get("pass_people")
-        people_list = People.objects.filter(group=user.group).order_by('full_name')
+        pass_attendant = request.data.get("pass_people")
+        attendant_list = User.objects.filter(group=user.group).order_by('full_name')
 
-        if pass_people:
-            people_list = people_list.exclude(id__in=pass_people)
+        if pass_attendant:
+            attendant_list = attendant_list.exclude(id__in=attendant_list)
 
-        people_duties_count = [people.duties_count for people in people_list]
+        serialized_attendants = AttendantSerializer(attendant_list, many=True).data
 
-        if all(person_duties_count == people_duties_count[0] for person_duties_count in people_duties_count):
-            attendants = get_min_date_people(people_list)
-            return Response(PeopleSerializer(attendants, many=True).data)
+        attendant_duties_count = [attendant['duties_count'] for attendant in serialized_attendants]
+        print(attendant_duties_count)
+
+        if all(person_duties_count == attendant_duties_count[0] for person_duties_count in attendant_duties_count):
+            attendants = get_min_date_people(serialized_attendants)
+            return Response({"Дежурные": attendants})
         else:
             min_duties_people = []
-            min_duties = [min(people_duties_count)]
+            min_duties = [min(attendant_duties_count)]
             people_with_min_duties = 0
-            for people in people_list:
-                if people.duties_count in min_duties:
+            for people in serialized_attendants:
+                if people['duties_count'] in min_duties:
                     people_with_min_duties += 1
             if people_with_min_duties < 2:
                 min_duties.append(min_duties[0]+1)
-            for people in people_list:
-                if people.duties_count in min_duties:
+            for people in serialized_attendants:
+                if people['duties_count'] in min_duties:
                     min_duties_people.append(people)
             if len(min_duties_people) == 2:
-                return Response(PeopleSerializer(min_duties_people, many=True).data)
+                return Response(AttendantSerializer(min_duties_people, many=True).data)
             else:
                 attendants = get_min_date_people(min_duties_people)
-                return Response(PeopleSerializer(attendants, many=True).data)
+                return Response(AttendantSerializer(attendants, many=True).data)
 
