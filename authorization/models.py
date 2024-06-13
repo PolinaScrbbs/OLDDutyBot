@@ -46,9 +46,9 @@ class Role(models.Model):
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(_("Имя пользователя"), max_length=20, unique=True)
     password = models.CharField(_("Пароль"), max_length=128)
-    role = models.ForeignKey(Role, models.CASCADE, verbose_name=_("Роль"), default=2)
+    role = models.ForeignKey(Role, models.CASCADE, verbose_name=_("Роль"), default=3)
     full_name = models.CharField(_('ФИО'), max_length=70)
-    group = models.CharField(_('Группа'), max_length=10)
+    group = models.CharField(_('Группа'), max_length=10, null=True, default=None)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
