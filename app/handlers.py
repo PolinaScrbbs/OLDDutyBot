@@ -8,6 +8,8 @@ import app.keyboards as kb
 import app.states as st
 import app.api.response as api_res
 import app.database.response as db_res
+from app.utils import handle_registration_response
+from app.validators import RegistrationValidator
 
 router = Router()
 
@@ -21,6 +23,49 @@ async def cmd_start(message:Message):
         reply_markup = kb.start
     await message.answer(f'Привет👋\nВыбери пункт из меню🔍',
                         reply_markup=reply_markup)
+
+
+#Регистрация============================================================================================================
+
+
+@router.message(lambda message: message.text == "Регистрация")
+async def get_full_name(message: Message, state: FSMContext):
+    await state.update_data(username=message.from_user.username)
+    await state.set_state(st.Registration.full_name)
+    await message.answer('👨‍🎓Введите ФИО', reply_markup=kb.cancel)
+
+@router.message(st.Registration.full_name)
+async def get_password(message: Message, state: FSMContext):
+    await state.update_data(full_name=message.text)
+    await state.set_state(st.Registration.password)
+    await message.answer('🔑Создайте пароль', reply_markup=kb.cancel)
+
+@router.message(st.Registration.password)
+async def get_confirm_password(message: Message, state: FSMContext):
+    await state.update_data(password=message.text)
+    await state.set_state(st.Registration.confirm_password)
+    await message.answer('🔑Подтвердите пароль ', reply_markup=kb.cancel)
+
+@router.message(st.Registration.confirm_password)
+async def registration(message: Message, state: FSMContext):
+    try:
+        await state.update_data(confirm_password=message.text)
+        data = await state.get_data()
+
+        validator = RegistrationValidator(data["full_name"], data["password"], data["confirm_password"])
+        error_message = await validator.validate()
+
+        if error_message:
+            await message.answer(f'❌*Ошибка:* {error_message}', parse_mode="Markdown", reply_markup=kb.start)
+        else:
+            response_data = await api_res.registration(data)
+            await handle_registration_response(message, state, response_data)
+    
+    except Exception as e:
+        await message.answer(f'❌*Ошибка:* {str(e)}', parse_mode="Markdown", reply_markup=kb.start)
+
+    finally:
+        await state.clear()
 
 
 #Авторизация============================================================================================================
@@ -118,7 +163,7 @@ async def get_attendants(message: Message, state: FSMContext):
             await state.update_data(attendants=attendants)
             await state.update_data(pass_people=pass_people)
             try:
-                await message.answer(f'👷🏿*{attendants[0]['full_name']}*{" "*len(attendants[1]['full_name'])*3}👷🏿*{attendants[1]['full_name']}*', reply_markup=kb.remap, parse_mode="Markdown")
+                await message.answer(f"👷🏿*{attendants[0]['full_name']}*{' ' * len(attendants[1]['full_name']) * 3}👷🏿*{attendants[1]['full_name']}*", reply_markup=kb.remap, parse_mode="Markdown")
             except:
                 await message.edit_text(f'❗Куда гонишь?', reply_markup=kb.remap, parse_mode="Markdown")
     else:
@@ -140,7 +185,7 @@ async def remapFirst(callback:CallbackQuery, state: FSMContext):
         await state.update_data(attendants=attendants)
         await state.update_data(pass_people=pass_people)
         try:
-            await callback.message.edit_text(f'👷🏿*{attendants[0]['full_name']}*{" "*len(attendants[1]['full_name'])*3}👷🏿*{attendants[1]['full_name']}*', reply_markup=kb.remap, parse_mode="Markdown")
+            await callback.message.edit_text(f"👷🏿*{attendants[0]['full_name']}*{' ' * len(attendants[1]['full_name']) * 3}👷🏿*{attendants[1]['full_name']}*", reply_markup=kb.remap, parse_mode="Markdown")
         except:
             await callback.message.edit_text(f'❗Куда гонишь?', reply_markup=kb.cancel, parse_mode="Markdown")
     
@@ -159,7 +204,7 @@ async def remapSecond(callback:CallbackQuery, state: FSMContext):
         await state.update_data(attendants=attendants)
         await state.update_data(pass_people=pass_people)
         try:
-            await callback.message.edit_text(f'👷🏿*{attendants[0]['full_name']}*{" "*len(attendants[1]['full_name'])*3}👷🏿*{attendants[1]['full_name']}*', reply_markup=kb.remap, parse_mode="Markdown")
+            await callback.message.edit_text(f"👷🏿*{attendants[0]['full_name']}*{' ' * len(attendants[1]['full_name']) * 3}👷🏿*{attendants[1]['full_name']}*", reply_markup=kb.remap, parse_mode="Markdown")
         except:
             await callback.message.edit_text(f'❗Куда гонишь?', reply_markup=kb.cancel, parse_mode="Markdown")
 
