@@ -37,10 +37,10 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
         return attrs
 
-    # def create(self, validated_data):
-    #     validated_data['password'] = make_password(validated_data.get('password'))
+    def create(self, validated_data):
+        validated_data['password'] = make_password(validated_data.get('password'))
     #     group = validated_data.get('group', '').upper()
     #     if group not in get_group_list():
     #         raise ValidationError(f'Группа {group} не найдена')
     #     validated_data['group'] = group
-    #     return super().create(validated_data)
+        return super().create(validated_data)

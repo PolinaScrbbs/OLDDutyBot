@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from django.core.exceptions import ValidationError
+from django.contrib.auth.hashers import make_password
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from rest_framework.authtoken.models import Token as AbstractToken
@@ -74,6 +75,12 @@ class User(AbstractBaseUser, PermissionsMixin):
             raise ValidationError({'group': f'Недопустимое значение группы. Доступные группы: {", ".join(groups_list)}'})
         else:
             self.group = self.group.upper()
+    
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+    
+    def check_password(self, raw_password):
+        return super().check_password(raw_password)
 
 class Token(AbstractToken):
     class Meta(AbstractToken.Meta):

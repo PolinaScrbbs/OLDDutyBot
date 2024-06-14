@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import check_password
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -26,9 +26,10 @@ class LoginView(APIView):
         login = request.data.get('login')
         password = request.data.get('password')
 
-        user = authenticate(request, username=login, password=password)
+        user = User.objects.get(username=login)
+        is_password_correct = check_password(password, user.password)
 
-        if user:
+        if is_password_correct:
             token, _ = Token.objects.get_or_create(user=user)
             return Response({'token': token.key}, status=status.HTTP_200_OK)
         else:
