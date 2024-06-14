@@ -6,5 +6,5 @@ async def handle_registration_response(message: Message, state: FSMContext, resp
     if "error" in response_data:
         await message.answer(f'❌*Ошибка:* {response_data["error"]}', parse_mode="Markdown", reply_markup=start)
     else:
-        await message.answer('✅Регистрация прошла успешно!')
+        await message.answer('✅Регистрация прошла успешно!', reply_markup=start)
         await state.clear()

@@ -72,35 +72,29 @@ async def registration(message: Message, state: FSMContext):
 
 
 @router.message(lambda message: message.text == "Авторизация")
-async def get_login(message: Message, state: FSMContext):
-    await state.set_state(st.Auth.login) #Поменяли состояние на ожидание логина
-    await message.answer('🆔Введите логин', reply_markup=kb.cancel)
-
-@router.message(st.Auth.login)
 async def get_password(message: Message, state: FSMContext):
-    await state.update_data(login=message.text) #Сохранили логин
-    await state.set_state(st.Auth.password) #Поменяли состояние на ожидание пароля
+    await state.update_data(login=message.from_user.username)
+    await state.set_state(st.Auth.password)
     await message.answer('🔑Введите пароль', reply_markup=kb.cancel)
 
 @router.message(st.Auth.password)
-async def reg(message: Message, state: FSMContext):
-    await state.update_data(password=message.text) #Сохранили пароль
-    data = await state.get_data() #Получили информацию
-    print(data['login'], data['password'])
+async def authorazation(message: Message, state: FSMContext):
+    await state.update_data(password=message.text)
+    data = await state.get_data()
+
     try:
-        token, error = api_res.authorization(data['login'], data['password'])
-        if error:
+        token = await api_res.authorization(data)
+
+        if token is None or "error" in token:
             await message.answer('❌Ошибка авторизации')
-            await state.clear() #Очищение состояний
         else:
             await db_res.save_token(message.from_user.id, token)
             await message.answer(f'{message.from_user.first_name}, авторизация завершена✌️', reply_markup=kb.main)
-            await state.clear() #Очищение состояний
     except:
         await message.answer('❌Ошибка авторизации')
-        await state.clear() #Очищение состояний
+    finally:
+        await state.clear()
         
-
 
 #Получение людей===========================================================================================
 

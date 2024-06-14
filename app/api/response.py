@@ -3,20 +3,25 @@ import aiohttp
 from urllib.parse import urljoin
 from datetime import datetime
 from config import API_URL as base_url
-
-async def fetch(url):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            return await response.text()
         
 async def registration(data):
     url = urljoin(base_url, "signup/")
     async with aiohttp.ClientSession() as session:
         async with session.post(url, json=data) as response:
-            if response.status == 200:
+            if response.status == 201:
                 return await response.json()
             else:
                 return {"error": f"Request failed with status {response.status}"}
+            
+async def authorization(data):
+    url = urljoin(base_url, "login/")
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json=data) as response:
+            if response.status == 200:
+                response_json = await response.json().get("token")
+                return response_json.get("token")
+            else:
+                return {"error": f"{response.error} {response.status}"}
 
 # def authorization(login, password):
 #     base_url = API_URL
