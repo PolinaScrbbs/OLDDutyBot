@@ -8,20 +8,15 @@ async def registration(data):
     url = urljoin(base_url, "signup/")
     async with aiohttp.ClientSession() as session:
         async with session.post(url, json=data) as response:
-            if response.status == 201:
-                return await response.json()
-            else:
-                return {"error": f"Request failed with status {response.status}"}
+            return await response.json()
+
             
 async def authorization(data):
     url = urljoin(base_url, "login/")
     async with aiohttp.ClientSession() as session:
         async with session.post(url, json=data) as response:
-            if response.status == 200:
-                response_json = await response.json().get("token")
-                return response_json.get("token")
-            else:
-                return {"error": f"Request failed with status {response.status}"}
+            return await response.json()
+
             
 async def get_group_students(token):
     url = urljoin(base_url, "users/")
@@ -30,12 +25,32 @@ async def get_group_students(token):
     async with aiohttp.ClientSession() as session:
         try:
             async with session.get(url, headers=headers) as response:
-                if response.status == 200:
-                    return await response.json()
-                elif response.status == 401:
-                    return {"error": "Ошибка авторизации"}
-                else:
-                    return {"error": f"Request failed with status {response.status}"}
+                return await response.json()
+
+        except aiohttp.ClientError as e:
+            return {"error": str(e)}
+        
+async def get_group_duties(token):
+    url = urljoin(base_url, "duties/")
+    headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
+
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get(url, headers=headers) as response:
+                return await response.json()
+
+        except aiohttp.ClientError as e:
+            return {"error": str(e)}
+        
+async def get_group_duties_count(token):
+    url = urljoin(base_url, "duties_count/")
+    headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
+
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get(url, headers=headers) as response:
+                return await response.json()
+
         except aiohttp.ClientError as e:
             return {"error": str(e)}
 

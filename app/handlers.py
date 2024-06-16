@@ -17,7 +17,7 @@ router = Router()
 @router.message(CommandStart())
 async def cmd_start(message:Message):
     token = await db_res.get_token(message.from_user.id)
-    if token:
+    if token != None:
         reply_markup = kb.main
     else:
         reply_markup = kb.start
@@ -83,12 +83,12 @@ async def authorazation(message: Message, state: FSMContext):
     data = await state.get_data()
 
     try:
-        token = await api_res.authorization(data)
+        response_data = await api_res.authorization(data)
 
-        if token is None or "error" in token:
-            await message.answer('❌Ошибка авторизации')
-        else:
-            await db_res.save_token(message.from_user.id, token)
+        try:
+            await message.answer(f"*Ошибка* : {response_data['error']}", parse_mode="Markdown")
+        except:
+            await db_res.save_token(message.from_user.id, response_data['token'])
             await message.answer(f'{message.from_user.first_name}, авторизация завершена✌️', reply_markup=kb.main)
     except:
         await message.answer('❌Ошибка авторизации')
@@ -100,7 +100,7 @@ async def authorazation(message: Message, state: FSMContext):
 
 
 @router.message(lambda message: message.text == "Список студентов")
-async def get_people(message: Message):
+async def get_group_students(message: Message):
     token = await db_res.get_token(message.from_user.id)
     if token:
         response_data = await api_res.get_group_students(token)
@@ -109,7 +109,7 @@ async def get_people(message: Message):
             await message.answer(f"*Ошибка* : {response_data['error']}", parse_mode="Markdown")
 
         except:
-            students = response_data["Students"]
+            students = response_data["students"]
             msg = f"🧹Студенты группы: *{students[0]['group']}*\n\n"
             for student in students:
                 msg += f"👨‍🎓 *@{student['username']}*, {student['full_name']}\n"
@@ -122,24 +122,56 @@ async def get_people(message: Message):
 #Получение списка дежурств===========================================================================================
 
 
-@router.message(lambda message: message.text == "Получить список дежурств")
-async def get_duties(message: Message):
+@router.message(lambda message: message.text == "Список дежурств")
+async def get_group_duties(message: Message):
     token = await db_res.get_token(message.from_user.id)
     if token:
-        duties, error = api_res.get_duties(token)
-        print(duties)
-        if error:
-            await message.answer(error, reply_markup=kb.main)
+        response_data = await api_res.get_group_duties(token)
+
+        if "error" in response_data:
+            await message.answer(f"*Ошибка* : {response_data['error']}", parse_mode="Markdown")
+        elif "message" in response_data:
+            await message.answer(f"*Сообщение* : {response_data['message']}", parse_mode="Markdown")
+
         else:
             msg = "🧹*Дежурства:*\n\n"
-            if duties != []:
-                for duty in duties:
-                    msg += f"👨‍🎓 *{duty['people']['full_name']}* дежурил ⏰*{duty['date']}*\n"
+            duties = response_data["duties"]
+
+            if duties == []:
+                await message.answer("*🔎Дежурств не обнаружено*", parse_mode="Markdown")
             else:
-                msg = "*🔎Дежурств не обнаружено*"
-            await message.answer(msg, parse_mode="Markdown")
+                for duty in duties:
+                    msg += f"👨‍🎓 *@{duty['attendant']['username']} {duty['attendant']['full_name']}* дежурил ⏰*{duty['date']}*\n"
+                    await message.answer(msg, parse_mode="Markdown")
+            
     else:
         await message.answer('Необходимо авторизоваться', reply_markup=kb.start)
+
+
+#Получение количества дежурств===========================================================================================
+
+
+@router.message(lambda message: message.text == "Количество дежурств")
+async def get_group_duties_count(message: Message):
+    token = await db_res.get_token(message.from_user.id)
+    if token:
+        response_data = await api_res.get_group_duties_count(token)
+
+        if "error" in response_data:
+            await message.answer(f"*Ошибка* : {response_data['error']}", parse_mode="Markdown")
+        elif "message" in response_data:
+            await message.answer(f"*Сообщение* : {response_data['message']}", parse_mode="Markdown")
+
+        else:
+            msg = "🧹*Количество дежурств:*\n\n"
+            duties = response_data["duties"]
+
+            if duties == []:
+                await message.answer("*🔎Дежурств не обнаружено*", parse_mode="Markdown")
+            else:
+                for duty in duties:
+                    msg += f"👨‍🎓 *@{duty['username']}* {duty['full_name']} *Количество дежурств*: *{duty['duties_count']}*\n"
+                    await message.answer(msg, parse_mode="Markdown")
 
 
 #Назначение дежурных===========================================================================================

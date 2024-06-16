@@ -12,7 +12,7 @@ start = ReplyKeyboardMarkup(keyboard=[
 
 main = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text='Назначить дежурных')],
-    [KeyboardButton(text='Получить список дежурств'), KeyboardButton(text='Получить количество дежурств')],
+    [KeyboardButton(text='Список дежурств'), KeyboardButton(text='Количество дежурств')],
     [KeyboardButton(text='Список студентов')],
     [KeyboardButton(text='Создатель', web_app=WebAppInfo(url='https://github.com/PolinaScrbbs'))]
 ],
