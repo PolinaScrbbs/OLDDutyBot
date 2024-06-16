@@ -1,33 +1,379 @@
 [
-    {
-    "model": "Auth.admin",
-    "pk": 1,
-    "fields": {
-        "last_login": null,
-        "is_superuser": true,
-        "password": "1",
-        "full_name": "Ивановский Тимофей Владиславович",
-        "group": "ИС-33К",
-        "is_active": true,
-        "is_staff": false,
-        "groups": [],
-        "user_permissions": []
-    }
-    },
-
-    {
-        "model": "Auth.admin",
-        "pk": 1,
-        "fields": {
-            "last_login": null,
-            "is_superuser": false,
-            "password": "pbkdf2_sha256$600000$VqnIb1Hy89RK8DiUoscJS0$6q8pZTh2P8V3NgTbecVIh7reVG44n0byhw/xUDI3k0U=",
-            "full_name": "Клочков Данила Александрович",
-            "group": "ИС-33К",
-            "is_active": true,
-            "is_staff": true,
-            "groups": [],
-            "user_permissions": []
-        }
-    }
+{
+  "model": "authorization.role",
+  "pk": 1,
+  "fields": {
+    "title": "Администратор"
+  }
+},
+{
+  "model": "authorization.role",
+  "pk": 2,
+  "fields": {
+    "title": "Староста"
+  }
+},
+{
+  "model": "authorization.role",
+  "pk": 3,
+  "fields": {
+    "title": "Студент"
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 8,
+  "fields": {
+    "last_login": "2024-06-13T16:38:49.772Z",
+    "is_superuser": true,
+    "username": "1",
+    "password": "pbkdf2_sha256$720000$MwN8co4nKev5AW2mDyNU3V$n9CmfI3KJdmxQk034sKFpclikyzYSSXuO71mdFH9bBk=",
+    "role": 2,
+    "full_name": "",
+    "group": "",
+    "is_active": true,
+    "is_staff": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 16,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "CKapaboobs",
+    "password": "pbkdf2_sha256$720000$zYJWavu66HoEx5NJluKYdk$ueKfQOdRoIgD624ph0X24QvQ5WWHOm3g0Bq+iN0YF8Y=",
+    "role": 3,
+    "full_name": "Ивановский Т.В.",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 1,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "azarov",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Азаров Артём Эдуардович",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 2,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "antipova",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Антипова Ольга Андреевна",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 3,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "balyagutdinov",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Балягутдинов Даниил Зуфирович",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 4,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "vyalykh",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Вялых Александр Сепгеевич",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 5,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "gaidary",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Гайдары Владислав Васильевич",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 6,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "gorboulin",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Горбулин Павел Владимирович",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 7,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "grin",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Гринь Кирилл Андреевич",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 8,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "denisov",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Денисов Иван Алексеевич",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 9,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "eryomin",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Ерёмин Антон Дмитриевич",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 10,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "zaets",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Заец Ольга Сергеевна",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 11,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "zakharov",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Захаров Ярослав Александрович",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 12,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "zubarev",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Зубарев Дмитрий Александрович",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 13,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "ivanchenkov",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Иванченков Даниил Алексеевич",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 14,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "kloсhkov",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Клочков Данила Александрович",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 15,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "kolkneva",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Колкнева Ангелина Игоревна",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 16,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "kulikov",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Куликов Георгий Борисович",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 17,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "levkov",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Левков Станислав Алексеевич",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.user",
+  "pk": 18,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "username": "kholodov",
+    "password": "pbkdf2_sha256$720000$examplepasswordhash",
+    "role": 3,
+    "full_name": "Холодов Александр Сергеевич",
+    "group": "ИС-33К",
+    "is_active": true,
+    "is_staff": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "authorization.token",
+  "pk": "24b62a6eeca02345c79b9900869e990677a5ba2c",
+  "fields": {
+    "user": 16,
+    "created": "2024-06-16T06:40:46.599Z"
+  }
+},
+{
+  "model": "duty.duty",
+  "pk": 6,
+  "fields": {
+    "attendant": 16,
+    "date": "2024-06-16"
+  }
+}
 ]

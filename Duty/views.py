@@ -8,16 +8,6 @@ from .models import Duty
 from .serializers import AttendantSerializer, DutyDetailSerializer, DutyCountSerializer
 from datetime import datetime
 
-# class PeopleListView(APIView):
-#     authentication_classes = [TokenAuthentication]
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request):
-#         user = request.user
-#         people = People.objects.filter(group=user.group).order_by('full_name')
-#         serializer = PeopleSerializer(people, many=True)
-#         return Response(serializer.data)
-
 class DutyListView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -37,10 +27,10 @@ class DutyListView(APIView):
         user = request.user
         if user.role.id not in [1,2]:
             return Response({"error": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
-        attendants = request.data.get("duties")
+        attendants = request.data.get("attendants")
         try:
             for attendant in attendants:
-                attendant = User.objects.get(full_name=attendant)
+                attendant = User.objects.get(id=attendant['id'])
 
                 if attendant.group != user.group:
                     return Response({"error": f"Студент {attendant.full_name} из группы {attendant.group}, а не из вашей {user.group}"}, status=status.HTTP_400_BAD_REQUEST)
@@ -68,26 +58,26 @@ class DutyCountListView(APIView):
 
 
 # Получение двух людей с наименьшей датой последнего дежурства из заданного списка
-def get_min_date_people(people_list):
-    min_people = []
+def get_min_date_attendant(attendant_list):
+    min_attendant = []
     null_date = datetime.strptime('2023-12-04', '%Y-%m-%d').date()
 
-    for person in people_list:
-        if person['last_duty_date'] is not None:
-            last_duty_date = person['last_duty_date']
+    for attendant in attendant_list:
+        if attendant['last_duty_date'] is not None:
+            last_duty_date = attendant['last_duty_date']
         else:
             last_duty_date = null_date
 
-        if len(min_people) < 2:
-            min_people.append((person, last_duty_date))
+        if len(min_attendant) < 2:
+            min_attendant.append((attendant, last_duty_date))
 
         else:
-            min_people.sort(key=lambda x: x[1])
-            if last_duty_date < min_people[1][1]:
-                min_people.pop()
-                min_people.append((person, last_duty_date))
+            min_attendant.sort(key=lambda x: x[1])
+            if last_duty_date < min_attendant[1][1]:
+                min_attendant.pop()
+                min_attendant.append((attendant, last_duty_date))
 
-    return [person for person, _ in min_people]
+    return [attendant for attendant, _ in min_attendant]
 
 class AttendantView(APIView):
     authentication_classes = [TokenAuthentication]
@@ -95,38 +85,42 @@ class AttendantView(APIView):
 
     def get(self, request):
         user = request.user
-        if user.role.id not in [1,2]:
+        if user.role.id not in [1, 2]:
             return Response({"error": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
 
-        pass_attendant = request.data.get("pass_people")
+        pass_attendant = request.data.get("pass_attendant")
+        print(pass_attendant)
+
         attendant_list = User.objects.filter(group=user.group).order_by('full_name')
 
         if pass_attendant:
-            attendant_list = attendant_list.exclude(id__in=attendant_list)
+            pass_attendant_ids = list(map(int, pass_attendant))
+            attendant_list = attendant_list.exclude(id__in=pass_attendant_ids)
 
         serialized_attendants = AttendantSerializer(attendant_list, many=True).data
 
-        attendant_duties_count = [attendant['duties_count'] for attendant in serialized_attendants]
-        print(attendant_duties_count)
+        duties_counts = [attendant['duties_count'] for attendant in serialized_attendants]
 
-        if all(person_duties_count == attendant_duties_count[0] for person_duties_count in attendant_duties_count):
-            attendants = get_min_date_people(serialized_attendants)
-            return Response({"Дежурные": attendants})
+        if all(count == duties_counts[0] for count in duties_counts):
+            attendants = get_min_date_attendant(serialized_attendants)
+            return Response({"attendants": attendants})
         else:
-            min_duties_people = []
-            min_duties = [min(attendant_duties_count)]
-            people_with_min_duties = 0
-            for people in serialized_attendants:
-                if people['duties_count'] in min_duties:
-                    people_with_min_duties += 1
-            if people_with_min_duties < 2:
-                min_duties.append(min_duties[0]+1)
-            for people in serialized_attendants:
-                if people['duties_count'] in min_duties:
-                    min_duties_people.append(people)
-            if len(min_duties_people) == 2:
-                return Response(AttendantSerializer(min_duties_people, many=True).data)
+            min_duties_attendant = []
+            min_duties = [min(duties_counts)]
+            attendant_with_min_duties = 0
+            for attendant in serialized_attendants:
+                if attendant['duties_count'] in min_duties:
+                    attendant_with_min_duties += 1
+            if attendant_with_min_duties < 2:
+                min_duties.append(min_duties[0] + 1)
+            for attendant in serialized_attendants:
+                if attendant['duties_count'] in min_duties:
+                    min_duties_attendant.append(attendant)
+            if len(min_duties_attendant) == 2:
+                print(min_duties_attendant)
+                return Response({"attendants": AttendantSerializer(min_duties_attendant, many=True).data})
             else:
-                attendants = get_min_date_people(min_duties_people)
-                return Response(AttendantSerializer(attendants, many=True).data)
+                attendants = get_min_date_attendant(min_duties_attendant)
+                print(attendants)
+                return Response({"attendants": AttendantSerializer(attendants, many=True).data})
 

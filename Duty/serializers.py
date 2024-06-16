@@ -7,7 +7,7 @@ from authorization.serializers import UserDetailSerializer
 from authorization.parser import get_group_list
 
 class AttendantSerializer(serializers.ModelSerializer):
-    duties_count = serializers.IntegerField(default=0)
+    duties_count = serializers.SerializerMethodField(default=0)
     last_duty_date = serializers.SerializerMethodField()
     
     class Meta:
@@ -15,11 +15,14 @@ class AttendantSerializer(serializers.ModelSerializer):
         fields = ['id', 'full_name', 'group', 'duties_count', 'last_duty_date']
 
     def get_duties_count(self, obj):
-        return Duty.objects.filter(duty=obj).count()
+        if hasattr(obj, 'duties_count'):
+            return obj.duties_count
+        else:
+            return 0
     
     def get_last_duty_date(self, obj):
         today = timezone.now().date()
-        last_duty = Duty.objects.filter(duty=obj, date__lte=today).order_by('-date').first()
+        last_duty = Duty.objects.filter(attendant=obj, date__lte=today).order_by('-date').first()
         return last_duty.date if last_duty else None
 
     def validate_group(self, value):
