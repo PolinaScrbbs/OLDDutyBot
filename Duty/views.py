@@ -5,7 +5,7 @@ from rest_framework import status
 
 from authorization.models import User, TokenAuthentication
 from .models import Duty
-from .serializers import AttendantSerializer, DutyDetailSerializer
+from .serializers import AttendantSerializer, DutyDetailSerializer, DutyCountSerializer
 from datetime import datetime
 
 # class PeopleListView(APIView):
@@ -26,30 +26,45 @@ class DutyListView(APIView):
         user = request.user
         group = user.group
 
-        duties = Duty.objects.filter(duty__group=group).order_by('duty__full_name', 'date')
+        duties = Duty.objects.filter(attendant__group=group).order_by('attendant__full_name', 'date')
         if duties.__len__() == 0:
-            return Response({"message": f"Список дежурств группы {group} пуст"})
+            return Response({"message": f"Список дежурств группы {group} пуст"}, status=status.HTTP_404_NOT_FOUND)
         
         serializer = DutyDetailSerializer(duties, many=True)
-        return Response({f"Дежурства группы {group}": serializer.data})
+        return Response({f"duties": serializer.data})
     
     def post(self, request):
         user = request.user
         if user.role.id not in [1,2]:
-            return Response({"Ошибка": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
-        duties = request.data.get("duties")
+            return Response({"error": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
+        attendants = request.data.get("duties")
         try:
-            for duty in duties:
-                duty = User.objects.get(full_name=duty)
+            for attendant in attendants:
+                attendant = User.objects.get(full_name=attendant)
 
-                if duty.group != user.group:
-                    return Response({"error": f"Студент {duty.full_name} из группы {duty.group}, а не из вашей {user.group}"}, status=status.HTTP_400_BAD_REQUEST)
+                if attendant.group != user.group:
+                    return Response({"error": f"Студент {attendant.full_name} из группы {attendant.group}, а не из вашей {user.group}"}, status=status.HTTP_400_BAD_REQUEST)
                 
-                Duty.objects.create(duty=duty)
+                Duty.objects.create(attendant=attendant)
 
             return Response({"message": "Duties created successfully"}, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({f"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+class DutyCountListView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        group = user.group
+
+        duties = Duty.objects.filter(attendant__group=group).order_by('attendant__full_name', 'date')
+        if duties.__len__() == 0:
+            return Response({"message": f"Список дежурств группы {group} пуст"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = DutyCountSerializer(duties, many=True)
+        return Response({f"duties": serializer.data})
 
 
 # Получение двух людей с наименьшей датой последнего дежурства из заданного списка
@@ -81,7 +96,7 @@ class AttendantView(APIView):
     def get(self, request):
         user = request.user
         if user.role.id not in [1,2]:
-            return Response({"Ошибка": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
 
         pass_attendant = request.data.get("pass_people")
         attendant_list = User.objects.filter(group=user.group).order_by('full_name')

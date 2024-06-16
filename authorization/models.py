@@ -75,6 +75,18 @@ class User(AbstractBaseUser, PermissionsMixin):
             raise ValidationError({'group': f'Недопустимое значение группы. Доступные группы: {", ".join(groups_list)}'})
         else:
             self.group = self.group.upper()
+
+    def save(self, *args, **kwargs):
+        self.full_name = self.format_full_name()
+        super().save(*args, **kwargs)
+
+    def format_full_name(self):
+        full_name = self.full_name
+        parts = full_name.split()
+        if len(parts) == 3:
+            last_name, first_name, middle_name = parts
+            return f"{last_name} {first_name[0]}.{middle_name[0]}."
+        return full_name
     
     def set_password(self, raw_password):
         self.password = make_password(raw_password)

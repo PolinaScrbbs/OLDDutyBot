@@ -53,9 +53,9 @@ class UsersView(CreateAPIView):
                     serializer = self.get_serializer(user)
                     return Response({"Пользователь": serializer.data})
                 except User.DoesNotExist:
-                    return Response({"Ошибка": "Пользователь с указанным ID не найден"}, status=status.HTTP_404_NOT_FOUND)
+                    return Response({"error": "Пользователь с указанным ID не найден"}, status=status.HTTP_404_NOT_FOUND)
             else:
-                return Response({"Ошибка": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
+                return Response({"error": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
 
         role_id = request.data.get("role_id")
 
@@ -69,11 +69,11 @@ class UsersView(CreateAPIView):
                         serializer = self.get_serializer(users, many=True)
                         return Response({f"Пользователи с ролью {role.title}": serializer.data})
                     else:
-                        return Response({f"Пользователи с ролью {role.title} не найдены"}, status=status.HTTP_404_NOT_FOUND)
+                        return Response({"error": f"Пользователи с ролью {role.title} не найдены"}, status=status.HTTP_404_NOT_FOUND)
                 except Role.DoesNotExist:
-                    return Response({"Ошибка": "Роль с указанным ID не найдена"}, status=status.HTTP_404_NOT_FOUND)
+                    return Response({"error": "Роль с указанным ID не найдена"}, status=status.HTTP_404_NOT_FOUND)
             else:
-                return Response({"Ошибка": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
+                return Response({"error": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
 
         group = request.data.get("group")
 
@@ -83,27 +83,27 @@ class UsersView(CreateAPIView):
                 group_list = get_group_list()
 
                 if group not in group_list:
-                    return Response({"Ошибка": f"Группа {group} не найдена"}, status=status.HTTP_404_NOT_FOUND)
+                    return Response({"error": f"Группа {group} не найдена"}, status=status.HTTP_404_NOT_FOUND)
 
                 if user.group != group and user_role_id != 1:
-                    return Response({"Ошибка": "Отказано в доступе к другой группе"}, status=status.HTTP_403_FORBIDDEN)
+                    return Response({"error": "Отказано в доступе к другой группе"}, status=status.HTTP_403_FORBIDDEN)
                 
                 users = User.objects.filter(group=group).order_by('full_name')
                 if users.exists():
                     serializer = self.get_serializer(users, many=True)
                     return Response({f"Пользователи с группой {group}": serializer.data})
                 else:
-                    return Response({f"Пользователи с группой {group} не найдены"}, status=status.HTTP_404_NOT_FOUND)
+                    return Response({"error": f"Пользователи с группой {group} не найдены"}, status=status.HTTP_404_NOT_FOUND)
             else:
-                return Response({"Ошибка": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
+                return Response({"error": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
         
         elif user_role_id == 2:
             users = User.objects.filter(group=user.group).order_by('full_name')
             if users.exists():
                 serializer = self.get_serializer(users, many=True)
-                return Response({"Students": serializer.data})
+                return Response({"students": serializer.data})
             else:
-                return Response({"Пользователи не найдены"}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"error": "Пользователи не найдены"}, status=status.HTTP_404_NOT_FOUND)
 
         if user.role.id == 1:
             users = User.objects.all().order_by('full_name')
@@ -111,9 +111,9 @@ class UsersView(CreateAPIView):
                 serializer = self.get_serializer(users, many=True)
                 return Response({"Пользователи": serializer.data})
             else:
-                return Response({"Пользователи не найдены"}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"error": "Пользователи не найдены"}, status=status.HTTP_404_NOT_FOUND)
         else:
-            return Response({"Ошибка": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
 
             
     

@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from django.utils import timezone
 
-
 from .models import Duty
 from authorization.serializers import UserDetailSerializer
 from authorization.parser import get_group_list
@@ -29,15 +28,22 @@ class AttendantSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f'Недопустимое значение группы. Доступные группы: {", ".join(groups_list)}')
         return value
 
-# class DutyCreateSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Duty
-#         fields = ('duty')
-
 class DutyDetailSerializer(serializers.ModelSerializer):
-    duty = UserDetailSerializer()
+    attendant = UserDetailSerializer()
+    
     class Meta:
         model = Duty
         fields = '__all__'
 
+class DutyCountSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='attendant.username')
+    full_name = serializers.CharField(source='attendant.full_name')
+    duties_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Duty
+        fields = ['username', 'full_name', 'duties_count']
+
+    def get_duties_count(self, obj):
+        return Duty.objects.filter(attendant=obj.attendant).count()
 
