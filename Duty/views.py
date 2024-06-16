@@ -43,7 +43,7 @@ class DutyListView(APIView):
                 duty = User.objects.get(full_name=duty)
 
                 if duty.group != user.group:
-                    return Response({"error": f"Студент {duty.full_name} из группы {duty.group}, а из вашей {user.group}"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"error": f"Студент {duty.full_name} из группы {duty.group}, а не из вашей {user.group}"}, status=status.HTTP_400_BAD_REQUEST)
                 
                 Duty.objects.create(duty=duty)
 

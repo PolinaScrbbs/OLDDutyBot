@@ -40,13 +40,14 @@ class UsersView(CreateAPIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         user = self.request.user
         user_id = kwargs.get('pk')
+        user_role_id = user.role.id
 
         if user_id is not None:
             user_id = int(user_id)
-            if user.role.id == 1 or user.id == user_id:
+            if user_role_id == 1 or user.id == user_id:
                 try:
                     user = User.objects.get(pk=user_id)
                     serializer = self.get_serializer(user)
@@ -59,7 +60,7 @@ class UsersView(CreateAPIView):
         role_id = request.data.get("role_id")
 
         if role_id is not None:
-            if user.role.id == 1:
+            if user_role_id == 1:
                 try:
                     role = Role.objects.get(id=role_id)
                     users = User.objects.filter(role=role).order_by('full_name')
@@ -77,14 +78,14 @@ class UsersView(CreateAPIView):
         group = request.data.get("group")
 
         if group is not None:
-            if user.role.id in [1, 2]:
+            if user_role_id in [1, 2]:
                 group = group.upper()
                 group_list = get_group_list()
 
                 if group not in group_list:
                     return Response({"Ошибка": f"Группа {group} не найдена"}, status=status.HTTP_404_NOT_FOUND)
 
-                if user.group != group and user.role.id != 1:
+                if user.group != group and user_role_id != 1:
                     return Response({"Ошибка": "Отказано в доступе к другой группе"}, status=status.HTTP_403_FORBIDDEN)
                 
                 users = User.objects.filter(group=group).order_by('full_name')
@@ -95,6 +96,14 @@ class UsersView(CreateAPIView):
                     return Response({f"Пользователи с группой {group} не найдены"}, status=status.HTTP_404_NOT_FOUND)
             else:
                 return Response({"Ошибка": "Вы не имеете прав"}, status=status.HTTP_403_FORBIDDEN)
+        
+        elif user_role_id == 2:
+            users = User.objects.filter(group=user.group).order_by('full_name')
+            if users.exists():
+                serializer = self.get_serializer(users, many=True)
+                return Response({"Students": serializer.data})
+            else:
+                return Response({"Пользователи не найдены"}, status=status.HTTP_404_NOT_FOUND)
 
         if user.role.id == 1:
             users = User.objects.all().order_by('full_name')
