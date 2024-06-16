@@ -11,8 +11,9 @@ start = ReplyKeyboardMarkup(keyboard=[
                         input_field_placeholder='Выберите пункт меню')
 
 main = ReplyKeyboardMarkup(keyboard=[
-    [KeyboardButton(text='Назначить дежурных'), KeyboardButton(text='Получить количество дежурств')],
-    [KeyboardButton(text='Получить список дежурств')],
+    [KeyboardButton(text='Назначить дежурных')],
+    [KeyboardButton(text='Получить список дежурств'), KeyboardButton(text='Получить количество дежурств')],
+    [KeyboardButton(text='Список студентов')],
     [KeyboardButton(text='Создатель', web_app=WebAppInfo(url='https://github.com/PolinaScrbbs'))]
 ],
                         resize_keyboard=True,

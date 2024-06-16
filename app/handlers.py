@@ -96,21 +96,25 @@ async def authorazation(message: Message, state: FSMContext):
         await state.clear()
         
 
-#Получение людей===========================================================================================
+#Получение студентов группы===========================================================================================
 
 
-@router.message(lambda message: message.text == "Получить количество дежурств")
+@router.message(lambda message: message.text == "Список студентов")
 async def get_people(message: Message):
     token = await db_res.get_token(message.from_user.id)
     if token:
-        people, error = api_res.get_people(token)
-        if error:
-            await message.answer(error, reply_markup=kb.main)
-        else:
-            msg = "🧹*Количество дежурств:*\n\n"
-            for person in people:
-                msg += f"👨‍🎓 *{person['full_name']}* Количество дежурств: *{person['duties_count']}*\n"
+        response_data = await api_res.get_group_students(token)
+
+        try:
+            await message.answer(f"*Ошибка* : {response_data['error']}", parse_mode="Markdown")
+
+        except:
+            students = response_data["Students"]
+            msg = f"🧹Студенты группы: *{students[0]['group']}*\n\n"
+            for student in students:
+                msg += f"👨‍🎓 *@{student['username']}*, {student['full_name']}\n"
             await message.answer(msg, parse_mode="Markdown")
+        
     else:
         await message.answer('Необходимо авторизоваться', reply_markup=kb.start)
 

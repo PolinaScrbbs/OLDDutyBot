@@ -21,46 +21,23 @@ async def authorization(data):
                 response_json = await response.json().get("token")
                 return response_json.get("token")
             else:
-                return {"error": f"{response.error} {response.status}"}
+                return {"error": f"Request failed with status {response.status}"}
+            
+async def get_group_students(token):
+    url = urljoin(base_url, "users/")
+    headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
 
-# def authorization(login, password):
-#     base_url = API_URL
-#     endpoint = '/auth/login/'
-#     url = urljoin(base_url, endpoint)
-#     headers = {'Content-Type': 'application/json'}
-#     data = {'login': login, 'password': password}
-
-#     try:
-#         response = requests.post(url, json=data, headers=headers)
-#         response.raise_for_status()  # Проверка на ошибку в ответе
-
-#         if response.status_code == 200:
-#             token = response.json().get('token')
-#             return token, None
-#         else:
-#             return None, "Ошибка аутентификации"
-#     except requests.RequestException as e:
-#         print(f"У пользователя {login} Произошла ошибка: {e}")
-
-
-# def get_people(token):
-#     base_url = API_URL
-#     endpoint = '/api/people/'
-#     url = urljoin(base_url, endpoint)
-#     headers = {'Authorization': f'Token {token}', 'Content-Type': 'application/json'}
-
-#     try:
-#         response = requests.get(url, headers=headers)
-#         response.raise_for_status()  # Проверка на ошибку в ответе
-        
-#         if response.status_code == 200:
-#             duties_count = response.json()
-#             return duties_count, None
-#         else:
-#             return None, "Ошибка"
-#     except requests.RequestException as e:
-#         print(f"Произошла ошибка: {e}")
-
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get(url, headers=headers) as response:
+                if response.status == 200:
+                    return await response.json()
+                elif response.status == 401:
+                    return {"error": "Ошибка авторизации"}
+                else:
+                    return {"error": f"Request failed with status {response.status}"}
+        except aiohttp.ClientError as e:
+            return {"error": str(e)}
 
 # def get_duties(token):
 #     base_url = API_URL
