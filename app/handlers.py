@@ -183,22 +183,29 @@ async def get_attendants(message: Message, state: FSMContext):
     if token:
         data = await state.get_data()
         try: 
-            pass_people = data['pass_people']
+            pass_attendant = data['pass_attendant']
         except:
-            pass_people = []
-        attendants, error = api_res.get_attendants(token, pass_people)
-        if error:
-            await message.edit_text(error, reply_markup=kb.main)
+            pass_attendant = []
+
+        response_data = await api_res.get_group_attendants(token, pass_attendant)
+
+        if "error" in response_data:
+            await message.answer(f"*Ошибка* : {response_data['error']}", parse_mode="Markdown")
+        elif "message" in response_data:
+            await message.answer(f"*Сообщение* : {response_data['message']}", parse_mode="Markdown")
+
+
         else:
+            attendants = response_data["attendants"]
             await state.update_data(attendants=attendants)
-            await state.update_data(pass_people=pass_people)
+            await state.update_data(pass_attendant=pass_attendant)
             try:
-                await message.answer(f"👷🏿*{attendants[0]['full_name']}*{' ' * len(attendants[1]['full_name']) * 3}👷🏿*{attendants[1]['full_name']}*", reply_markup=kb.remap, parse_mode="Markdown")
+                await message.answer(f"👷🏿*{attendants[0]['full_name']}* 👷🏿*{attendants[1]['full_name']}*", reply_markup=kb.remap, parse_mode="Markdown")
             except:
                 await message.edit_text(f'❗Куда гонишь?', reply_markup=kb.remap, parse_mode="Markdown")
     else:
         await message.answer('Необходимо авторизоваться', reply_markup=kb.cancel)
-        await state.clear() #Очищение состояний
+        await state.clear()
     
 
 @router.callback_query(F.data == 'remapFirst')
@@ -206,16 +213,21 @@ async def remapFirst(callback:CallbackQuery, state: FSMContext):
     token = await db_res.get_token(callback.from_user.id)
     data = await state.get_data()
     firstAttendant = data['attendants'][0]['id']
-    pass_people = data['pass_people']
-    pass_people.append(firstAttendant)
-    attendants, error = api_res.get_attendants(token, pass_people)
-    if error:
-        await callback.message.edit_text(error, reply_markup=kb.main)
+    pass_attendant = data['pass_attendant']
+    pass_attendant.append(firstAttendant)
+    response_data = await api_res.get_group_attendants(token, pass_attendant)
+
+    if "error" in response_data:
+        await callback.message.answer(f"*Ошибка* : {response_data['error']}", parse_mode="Markdown")
+    elif "message" in response_data:
+        await callback.message.answer(f"*Сообщение* : {response_data['message']}", parse_mode="Markdown")
+
     else:
+        attendants = response_data["attendants"]
         await state.update_data(attendants=attendants)
-        await state.update_data(pass_people=pass_people)
+        await state.update_data(pass_attendant=pass_attendant)
         try:
-            await callback.message.edit_text(f"👷🏿*{attendants[0]['full_name']}*{' ' * len(attendants[1]['full_name']) * 3}👷🏿*{attendants[1]['full_name']}*", reply_markup=kb.remap, parse_mode="Markdown")
+            await callback.message.edit_text(f"👷🏿*{attendants[0]['full_name']}* 👷🏿*{attendants[1]['full_name']}*", reply_markup=kb.remap, parse_mode="Markdown")
         except:
             await callback.message.edit_text(f'❗Куда гонишь?', reply_markup=kb.cancel, parse_mode="Markdown")
     
@@ -225,16 +237,21 @@ async def remapSecond(callback:CallbackQuery, state: FSMContext):
     token = await db_res.get_token(callback.from_user.id)
     data = await state.get_data()
     secondAttendant = data['attendants'][1]['id']
-    pass_people = data['pass_people']
-    pass_people.append(secondAttendant)
-    attendants, error = api_res.get_attendants(token, pass_people)
-    if error:
-        await callback.message.edit_text(error, reply_markup=kb.main)
+    pass_attendant = data['pass_attendant']
+    pass_attendant.append(secondAttendant)
+    response_data = await api_res.get_group_attendants(token, pass_attendant)
+
+    if "error" in response_data:
+        await callback.message.answer(f"*Ошибка* : {response_data['error']}", parse_mode="Markdown")
+    elif "message" in response_data:
+        await callback.message.answer(f"*Сообщение* : {response_data['message']}", parse_mode="Markdown")
+    
     else:
+        attendants = response_data["attendants"]
         await state.update_data(attendants=attendants)
-        await state.update_data(pass_people=pass_people)
+        await state.update_data(pass_attendant=pass_attendant)
         try:
-            await callback.message.edit_text(f"👷🏿*{attendants[0]['full_name']}*{' ' * len(attendants[1]['full_name']) * 3}👷🏿*{attendants[1]['full_name']}*", reply_markup=kb.remap, parse_mode="Markdown")
+            await callback.message.edit_text(f"👷🏿*{attendants[0]['full_name']}* 👷🏿*{attendants[1]['full_name']}*", reply_markup=kb.remap, parse_mode="Markdown")
         except:
             await callback.message.edit_text(f'❗Куда гонишь?', reply_markup=kb.cancel, parse_mode="Markdown")
 
@@ -243,14 +260,21 @@ async def remapSecond(callback:CallbackQuery, state: FSMContext):
 async def assign(callback:CallbackQuery, state: FSMContext):
     token = await db_res.get_token(callback.from_user.id)
     data = await state.get_data()
-    attendants = data['attendants']
-    api_res.post_duties(token, attendants)
-    await callback.message.edit_text('✅Дежурные установлены')
-    await state.clear() #Очищение состояний
+    response_data = attendants = data['attendants']
+
+    await api_res.add_attendant_duties(token, attendants)
+
+    if "error" in response_data:
+        await callback.message.answer(f"*Ошибка* : {response_data['error']}", parse_mode="Markdown")
+    elif "message" in response_data:
+        await callback.message.answer(f"*Сообщение* : {response_data['message']}", parse_mode="Markdown")
+    else:
+        await callback.message.edit_text('✅Дежурные установлены')
+        await state.clear()
 
 @router.callback_query(F.data == 'cancel')
 async def catalog(callback:CallbackQuery, state: FSMContext):
-    await state.clear() #Очищение состояний
+    await state.clear()
     await callback.message.edit_text('✅Отменено')
 
 

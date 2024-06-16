@@ -53,74 +53,28 @@ async def get_group_duties_count(token):
 
         except aiohttp.ClientError as e:
             return {"error": str(e)}
-
-# def get_duties(token):
-#     base_url = API_URL
-#     endpoint = '/api/duties/'
-#     url = urljoin(base_url, endpoint)
-#     headers = {'Authorization': f'Token {token}', 'Content-Type': 'application/json'}
-
-#     try:
-#         response = requests.get(url, headers=headers)
-#         response.raise_for_status()  # Проверка на ошибку в ответе
         
-#         if response.status_code == 200:
-#             duties = response.json()
-#             return duties, None
-#         else:
-#             return None, "Ошибка"
-#     except requests.RequestException as e:
-#         print(f"Произошла ошибка: {e}")
+async def get_group_attendants(token, pass_people):
+    url = urljoin(base_url, "attendants/")
+    headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
+    payload = {'pass_attendant': pass_people}
 
-
-# def get_attendants(token, pass_people):
-#     base_url = API_URL
-#     endpoint = '/api/attendant/'
-#     url = urljoin(base_url, endpoint)
-#     headers = {'Authorization': f'Token {token}', 'Content-Type': 'application/json'}
-#     data = {'pass_people': pass_people}
-
-#     try:
-#         response = requests.get(url, json=data, headers=headers)
-#         response.raise_for_status()  # Проверка на ошибку в ответе
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get(url, headers=headers, json=payload) as response:
+                return await response.json()
+        except aiohttp.ClientError as e:
+            return {"error": str(e)}
         
-#         if response.status_code == 200:
-#             attendants = response.json()
-#             return attendants, None
-#         else:
-#             return None, "Ошибка"
-#     except requests.RequestException as e:
-#         print(f"Произошла ошибка: {e}")
+async def add_attendant_duties(token, attendants):
+    url = urljoin(base_url, "duties/")
+    headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
+    payload = {'attendants': attendants}
 
-
-# def post_duties(token, attendants):
-#     base_url = API_URL
-#     endpoint = '/api/duties/'
-#     url = urljoin(base_url, endpoint)
-#     headers = {'Authorization': f'Token {token}', 'Content-Type': 'application/json'}
-#     today = str(datetime.today().date())
-#     body = {
-#         'duties': [
-#             {
-#                 "people": attendants[0]['full_name'],
-#                 "date": today
-#             },
-#             {
-#                 "people": attendants[1]['full_name'],
-#                 "date": today
-#             }
-#         ]
-#     }
-
-#     try:
-#         response = requests.post(url, json=body, headers=headers)
-#         response.raise_for_status()  # Проверка на ошибку в ответе
-        
-#         if response.status_code == 200:
-#             attendants = response.json()
-#             return attendants, None
-#         else:
-#             return None, "Ошибка"
-#     except requests.RequestException as e:
-#         print(f"Произошла ошибка: {e}") 
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.post(url, headers=headers, json=payload) as response:
+                return await response.json()
+        except aiohttp.ClientError as e:
+            return {"error": str(e)}
    
